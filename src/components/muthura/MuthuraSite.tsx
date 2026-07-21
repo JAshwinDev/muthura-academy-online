@@ -3,7 +3,8 @@ import { motion, useInView, useMotionValue, useSpring, useTransform } from "fram
 import {
   ArrowRight, Sparkles, Code2, Globe2, Brain, Smartphone, Monitor,
   GraduationCap, Award, Briefcase, Rocket, CheckCircle2, Star,
-  Phone, MapPin, Mail, Menu, X, ChevronDown, Play, Users, BookOpen, Trophy,
+  Phone, MapPin, Mail, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
+  Play, Users, BookOpen, Trophy, TrendingUp, Quote, Pause,
 } from "lucide-react";
 import logoAsset from "@/assets/muthura-logo.asset.json";
 import heroStudents from "@/assets/hero-students.jpg";
