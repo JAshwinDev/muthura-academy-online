@@ -59,29 +59,44 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-light: var(--brand-light);
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 1rem;
+  /* Muthura Academy brand palette derived from logo */
+  --brand-primary: oklch(0.55 0.19 250);      /* #0B63CE Primary Blue */
+  --brand-cyan: oklch(0.78 0.13 210);         /* #19C5D8 Secondary Cyan */
+  --brand-navy: oklch(0.20 0.05 260);         /* #0F172A Deep Navy */
+  --brand-light: oklch(0.97 0.02 230);        /* #EAF7FF Light Blue */
+  --brand-gradient: linear-gradient(135deg, oklch(0.55 0.19 250), oklch(0.78 0.13 210));
+  --shadow-brand: 0 20px 60px -20px oklch(0.55 0.19 250 / 0.35);
+  --shadow-soft: 0 10px 40px -12px oklch(0.20 0.05 260 / 0.15);
+
   --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.20 0.05 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.20 0.05 260);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.20 0.05 260);
+  --primary: oklch(0.55 0.19 250);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.02 230);
+  --secondary-foreground: oklch(0.20 0.05 260);
+  --muted: oklch(0.97 0.02 230);
+  --muted-foreground: oklch(0.45 0.04 250);
+  --accent: oklch(0.78 0.13 210);
+  --accent-foreground: oklch(0.20 0.05 260);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.92 0.02 230);
+  --input: oklch(0.92 0.02 230);
+  --ring: oklch(0.55 0.19 250);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -140,5 +155,28 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
+  html { scroll-behavior: smooth; }
+  h1,h2,h3,h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
+}
+
+@utility text-gradient-brand {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-gradient-brand {
+  background: var(--brand-gradient);
+}
+
+@utility shadow-brand {
+  box-shadow: var(--shadow-brand);
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
 }
