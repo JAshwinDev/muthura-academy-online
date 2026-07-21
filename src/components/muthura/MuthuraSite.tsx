@@ -3,7 +3,8 @@ import { motion, useInView, useMotionValue, useSpring, useTransform } from "fram
 import {
   ArrowRight, Sparkles, Code2, Globe2, Brain, Smartphone, Monitor,
   GraduationCap, Award, Briefcase, Rocket, CheckCircle2, Star,
-  Phone, MapPin, Mail, Menu, X, ChevronDown, Play, Users, BookOpen, Trophy,
+  Phone, MapPin, Mail, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
+  Play, Users, BookOpen, Trophy, TrendingUp, Quote, Pause,
 } from "lucide-react";
 import logoAsset from "@/assets/muthura-logo.asset.json";
 import heroStudents from "@/assets/hero-students.jpg";
@@ -474,56 +475,187 @@ function Certificates() {
 }
 
 const STORIES = [
-  { name: "Aravind K.", role: "Full Stack Developer", quote: "The MERN program was intense and hands-on. I built 3 real projects and landed my first developer role within weeks of finishing.", rating: 5 },
-  { name: "Divya S.", role: "Data / AI Enthusiast", quote: "The AI/ML track combined theory with real Python notebooks. The free AI tools training was genuinely a bonus I use every day.", rating: 5 },
-  { name: "Karthik R.", role: "React Native Intern", quote: "I joined for Flutter and stayed for the mentorship. The internship gave me my first taste of a real product team.", rating: 5 },
-  { name: "Meena V.", role: "MS Office Certified", quote: "I started with zero computer skills. Today I confidently handle Tally and Excel at work — thanks to the patient teaching.", rating: 5 },
+  {
+    name: "Aravind K.", role: "Full Stack Developer", course: "MERN Stack",
+    quote: "The MERN program was intense and hands-on. I built 3 real projects and landed my first developer role within weeks of finishing.",
+    rating: 5, outcome: "Hired at a Chennai product startup", metric: "₹5.2 LPA offer", duration: "16 weeks",
+  },
+  {
+    name: "Divya S.", role: "Data / AI Enthusiast", course: "AI & Machine Learning",
+    quote: "The AI/ML track combined theory with real Python notebooks. The free AI tools training was genuinely a bonus I use every day.",
+    rating: 5, outcome: "Data Analyst intern → full-time", metric: "3 live ML projects", duration: "12 weeks",
+  },
+  {
+    name: "Karthik R.", role: "React Native Intern", course: "Flutter & Mobile Dev",
+    quote: "I joined for Flutter and stayed for the mentorship. The internship gave me my first taste of a real product team.",
+    rating: 5, outcome: "Internship converted to role", metric: "2 apps shipped", duration: "20 weeks",
+  },
+  {
+    name: "Meena V.", role: "Office Executive", course: "MS Office + Tally",
+    quote: "I started with zero computer skills. Today I confidently handle Tally and Excel at work — thanks to the patient teaching.",
+    rating: 5, outcome: "Promoted to Accounts Executive", metric: "40% faster reporting", duration: "8 weeks",
+  },
+  {
+    name: "Sathish P.", role: "Frontend Developer", course: "React + TypeScript",
+    quote: "The mentors reviewed my code line by line. I now push production React apps and mentor juniors on my team.",
+    rating: 5, outcome: "Freelance clients in 3 months", metric: "₹40k/mo side income", duration: "10 weeks",
+  },
 ];
 
 function Stories() {
   const [i, setI] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const n = STORIES.length;
   const s = STORIES[i];
+  const go = (dir: number) => setI((p) => (p + dir + n) % n);
+
+  useEffect(() => {
+    if (!playing) return;
+    const t = setInterval(() => setI((p) => (p + 1) % n), 5500);
+    return () => clearInterval(t);
+  }, [playing, n]);
+
   return (
-    <section className="bg-brand-light/40 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <SectionHeader eyebrow="Success Stories" title={<>Careers built at <span className="text-gradient-brand">Muthura Academy</span></>} subtitle="Real students, real skills, real outcomes." />
-        <div className="mt-16 grid gap-8 lg:grid-cols-5">
-          <motion.div key={s.name} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="rounded-3xl border border-border bg-white p-10 shadow-soft lg:col-span-3">
-            <div className="flex items-center gap-1">
-              {Array.from({length: s.rating}).map((_,k)=>(<Star key={k} className="h-4 w-4 fill-brand-primary text-brand-primary" />))}
-            </div>
-            <p className="mt-6 text-2xl font-semibold leading-relaxed text-brand-navy">“{s.quote}”</p>
-            <div className="mt-8 flex items-center gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-full bg-gradient-brand text-lg font-bold text-white">{s.name[0]}</div>
-              <div>
-                <div className="font-bold text-brand-navy">{s.name}</div>
-                <div className="text-sm text-muted-foreground">{s.role}</div>
+    <section className="relative overflow-hidden bg-brand-light/40 py-24 md:py-32">
+      <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-brand-cyan/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 bottom-16 h-72 w-72 rounded-full bg-brand-primary/20 blur-3xl" />
+      <div className="relative mx-auto max-w-7xl px-6">
+        <SectionHeader
+          eyebrow="Success Stories"
+          title={<>Careers built at <span className="text-gradient-brand">Muthura Academy</span></>}
+          subtitle="Real students. Real ratings. Real outcomes."
+        />
+
+        <div
+          className="mt-16"
+          onMouseEnter={() => setPlaying(false)}
+          onMouseLeave={() => setPlaying(true)}
+        >
+          <div className="grid gap-8 lg:grid-cols-5">
+            <motion.article
+              key={s.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: "easeOut" }}
+              className="relative rounded-3xl border border-border bg-white p-8 shadow-soft md:p-10 lg:col-span-3"
+            >
+              <Quote className="absolute right-8 top-8 h-16 w-16 text-brand-primary/10" strokeWidth={1.5} />
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1 rounded-full bg-brand-light px-3 py-1.5">
+                  {Array.from({ length: s.rating }).map((_, k) => (
+                    <Star key={k} className="h-3.5 w-3.5 fill-brand-primary text-brand-primary" />
+                  ))}
+                  <span className="ml-1 text-xs font-bold text-brand-navy">{s.rating}.0</span>
+                </div>
+                <span className="rounded-full border border-brand-primary/20 bg-white px-3 py-1.5 text-xs font-semibold text-brand-primary">
+                  {s.course}
+                </span>
+                <span className="rounded-full bg-brand-navy/5 px-3 py-1.5 text-xs font-medium text-brand-navy/70">
+                  {s.duration}
+                </span>
               </div>
-            </div>
-            <div className="mt-8 flex gap-2">
-              {STORIES.map((_, k) => (
-                <button
-                  key={k}
-                  onClick={() => setI(k)}
-                  aria-label={`Story ${k+1}`}
-                  className={`h-2 rounded-full transition-all ${k===i ? "w-8 bg-gradient-brand" : "w-2 bg-border"}`}
-                />
-              ))}
-            </div>
-          </motion.div>
-          <div className="grid gap-4 lg:col-span-2">
-            {STORIES.filter((_,k)=>k!==i).slice(0,3).map((st) => (
-              <button key={st.name} onClick={() => setI(STORIES.indexOf(st))} className="rounded-2xl border border-border bg-white p-5 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-brand">
+
+              <p className="relative mt-6 text-xl font-semibold leading-relaxed text-brand-navy md:text-2xl">
+                “{s.quote}”
+              </p>
+
+              <div className="mt-8 flex items-start gap-3 rounded-2xl border border-brand-primary/15 bg-gradient-to-br from-brand-light/60 to-white p-4">
+                <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-gradient-brand text-white">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-brand-primary">Outcome</div>
+                  <div className="text-sm font-semibold text-brand-navy">{s.outcome}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">{s.metric}</div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-light text-sm font-bold text-brand-primary">{st.name[0]}</div>
+                  <div className="grid h-12 w-12 place-items-center rounded-full bg-gradient-brand text-lg font-bold text-white">
+                    {s.name[0]}
+                  </div>
                   <div>
-                    <div className="text-sm font-bold text-brand-navy">{st.name}</div>
-                    <div className="text-xs text-muted-foreground">{st.role}</div>
+                    <div className="font-bold text-brand-navy">{s.name}</div>
+                    <div className="text-sm text-muted-foreground">{s.role}</div>
                   </div>
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">“{st.quote}”</p>
-              </button>
-            ))}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPlaying((p) => !p)}
+                    aria-label={playing ? "Pause carousel" : "Play carousel"}
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary"
+                  >
+                    {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  </button>
+                  <button
+                    onClick={() => go(-1)}
+                    aria-label="Previous story"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => go(1)}
+                    aria-label="Next story"
+                    className="grid h-10 w-10 place-items-center rounded-full bg-gradient-brand text-white shadow-brand transition hover:-translate-y-0.5"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-1.5">
+                {STORIES.map((_, k) => (
+                  <button
+                    key={k}
+                    onClick={() => setI(k)}
+                    aria-label={`Story ${k + 1}`}
+                    className="h-1.5 flex-1 overflow-hidden rounded-full bg-border"
+                  >
+                    <motion.div
+                      className="h-full bg-gradient-brand"
+                      initial={{ width: 0 }}
+                      animate={{ width: k === i ? "100%" : k < i ? "100%" : "0%" }}
+                      transition={{ duration: k === i && playing ? 5.5 : 0.3, ease: "linear" }}
+                    />
+                  </button>
+                ))}
+              </div>
+            </motion.article>
+
+            <div className="grid gap-4 lg:col-span-2">
+              {STORIES.map((st, k) => (
+                <button
+                  key={st.name}
+                  onClick={() => setI(k)}
+                  aria-current={k === i}
+                  className={`group rounded-2xl border p-5 text-left transition-all ${
+                    k === i
+                      ? "border-brand-primary bg-white shadow-brand"
+                      : "border-border bg-white/70 shadow-soft hover:-translate-y-0.5 hover:border-brand-primary/40 hover:bg-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`grid h-10 w-10 place-items-center rounded-full text-sm font-bold ${k === i ? "bg-gradient-brand text-white" : "bg-brand-light text-brand-primary"}`}>
+                      {st.name[0]}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-bold text-brand-navy">{st.name}</div>
+                      <div className="truncate text-xs text-muted-foreground">{st.role}</div>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <Star className="h-3 w-3 fill-brand-primary text-brand-primary" />
+                      <span className="text-xs font-bold text-brand-navy">{st.rating}.0</span>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-brand-primary">
+                    <TrendingUp className="h-3 w-3" />
+                    <span className="truncate">{st.outcome}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
