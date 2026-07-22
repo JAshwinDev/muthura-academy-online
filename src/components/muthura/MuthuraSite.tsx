@@ -505,6 +505,7 @@ const STORIES = [
 function Stories() {
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(true);
+  const [announcement, setAnnouncement] = useState("");
   const n = STORIES.length;
   const s = STORIES[i];
   const go = (dir: number) => setI((p) => (p + dir + n) % n);
@@ -523,6 +524,10 @@ function Stories() {
     const t = setInterval(() => setI((p) => (p + 1) % n), 5500);
     return () => clearInterval(t);
   }, [playing, n]);
+
+  useEffect(() => {
+    setAnnouncement(`Showing story ${i + 1} of ${n}: ${s.name}, ${s.role}. Outcome: ${s.outcome}.`);
+  }, [i, n, s]);
 
   return (
     <section className="relative overflow-hidden bg-brand-light/40 py-24 md:py-32">
