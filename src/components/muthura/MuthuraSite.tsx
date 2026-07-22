@@ -553,6 +553,9 @@ function Stories() {
           onFocus={() => setPlaying(false)}
           onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setPlaying(true); }}
         >
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            {announcement}
+          </div>
           <div className="grid gap-8 lg:grid-cols-5">
             <motion.article
               key={s.name}
