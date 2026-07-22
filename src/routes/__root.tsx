@@ -81,9 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Muthura Academy — offline & online training in Programming, Web, AI/ML, App Development and Computer Basics. Real projects, internships, certificates and placement prep." },
       { name: "author", content: "Muthura Academy" },
       { property: "og:title", content: "Muthura Academy | Learn • Build • Grow" },
-      { property: "og:description", content: "Premium EdTech academy in Udangudi, Thoothukudi — courses, internships, certificates and free AI tools training." },
+      { property: "og:description", content: "Muthura Academy — offline & online training in Programming, Web, AI/ML, App Development and Computer Basics. Real projects, internships, certificates and placement prep." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Muthura Academy | Learn • Build • Grow" },
+      { name: "twitter:description", content: "Muthura Academy — offline & online training in Programming, Web, AI/ML, App Development and Computer Basics. Real projects, internships, certificates and placement prep." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/feb683ee-e42d-4dc3-ab04-09bb88cff1f1/id-preview-ddf8bb10--f6352626-ed26-4162-a5af-c4b6e82fbba4.lovable.app-1784694902081.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/feb683ee-e42d-4dc3-ab04-09bb88cff1f1/id-preview-ddf8bb10--f6352626-ed26-4162-a5af-c4b6e82fbba4.lovable.app-1784694902081.png" },
     ],
     links: [
       {
