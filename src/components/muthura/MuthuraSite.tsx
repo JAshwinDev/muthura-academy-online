@@ -563,7 +563,6 @@ function Stories() {
               role="group"
               aria-roledescription="slide"
               aria-label={`Story ${i + 1} of ${n}: ${s.name}`}
-              aria-live={playing ? "off" : "polite"}
             >
               <Quote className="absolute right-8 top-8 h-16 w-16 text-brand-primary/10" strokeWidth={1.5} />
               <div className="flex flex-wrap items-center gap-3">
