@@ -505,6 +505,7 @@ const STORIES = [
 function Stories() {
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(true);
+  const [announcement, setAnnouncement] = useState("");
   const n = STORIES.length;
   const s = STORIES[i];
   const go = (dir: number) => setI((p) => (p + dir + n) % n);
@@ -523,6 +524,10 @@ function Stories() {
     const t = setInterval(() => setI((p) => (p + 1) % n), 5500);
     return () => clearInterval(t);
   }, [playing, n]);
+
+  useEffect(() => {
+    setAnnouncement(`Showing story ${i + 1} of ${n}: ${s.name}, ${s.role}. Outcome: ${s.outcome}.`);
+  }, [i, n, s]);
 
   return (
     <section className="relative overflow-hidden bg-brand-light/40 py-24 md:py-32">
@@ -548,6 +553,9 @@ function Stories() {
           onFocus={() => setPlaying(false)}
           onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setPlaying(true); }}
         >
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            {announcement}
+          </div>
           <div className="grid gap-8 lg:grid-cols-5">
             <motion.article
               key={s.name}
@@ -558,7 +566,6 @@ function Stories() {
               role="group"
               aria-roledescription="slide"
               aria-label={`Story ${i + 1} of ${n}: ${s.name}`}
-              aria-live={playing ? "off" : "polite"}
             >
               <Quote className="absolute right-8 top-8 h-16 w-16 text-brand-primary/10" strokeWidth={1.5} />
               <div className="flex flex-wrap items-center gap-3">
