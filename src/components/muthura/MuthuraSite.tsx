@@ -887,10 +887,8 @@ function FloatingSocials() {
       color: "#25D366",
       icon: WhatsAppIcon,
     },
-    { name: "LinkedIn", href: "#", color: "#0A66C2", icon: LinkedInIcon },
-    { name: "Instagram", href: "#", color: "#E4405F", icon: InstagramIcon },
-    { name: "Facebook", href: "#", color: "#1877F2", icon: FacebookIcon },
-    { name: "YouTube", href: "#", color: "#FF0000", icon: YouTubeIcon },
+    { name: "Instagram", href: "https://www.instagram.com/muthura_technologies/", color: "#E4405F", icon: InstagramIcon },
+    { name: "YouTube", href: "https://www.youtube.com/@muthura_technologies", color: "#FF0000", icon: YouTubeIcon },
   ];
 
   return (
