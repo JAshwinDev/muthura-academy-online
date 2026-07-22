@@ -508,6 +508,15 @@ function Stories() {
   const n = STORIES.length;
   const s = STORIES[i];
   const go = (dir: number) => setI((p) => (p + dir + n) % n);
+  const regionRef = useRef<HTMLDivElement>(null);
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+    else if (e.key === "Home") { e.preventDefault(); setI(0); }
+    else if (e.key === "End") { e.preventDefault(); setI(n - 1); }
+    else if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); setPlaying((p) => !p); }
+  };
 
   useEffect(() => {
     if (!playing) return;
@@ -527,9 +536,17 @@ function Stories() {
         />
 
         <div
-          className="mt-16"
+          ref={regionRef}
+          className="mt-16 rounded-3xl outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 focus-visible:ring-offset-4 focus-visible:ring-offset-brand-light/40"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Student success stories"
+          tabIndex={0}
+          onKeyDown={onKeyDown}
           onMouseEnter={() => setPlaying(false)}
           onMouseLeave={() => setPlaying(true)}
+          onFocus={() => setPlaying(false)}
+          onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setPlaying(true); }}
         >
           <div className="grid gap-8 lg:grid-cols-5">
             <motion.article
@@ -538,6 +555,10 @@ function Stories() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: "easeOut" }}
               className="relative rounded-3xl border border-border bg-white p-8 shadow-soft md:p-10 lg:col-span-3"
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`Story ${i + 1} of ${n}: ${s.name}`}
+              aria-live={playing ? "off" : "polite"}
             >
               <Quote className="absolute right-8 top-8 h-16 w-16 text-brand-primary/10" strokeWidth={1.5} />
               <div className="flex flex-wrap items-center gap-3">
@@ -583,35 +604,41 @@ function Stories() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPlaying((p) => !p)}
-                    aria-label={playing ? "Pause carousel" : "Play carousel"}
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary"
+                    aria-label={playing ? "Pause story auto-rotation" : "Play story auto-rotation"}
+                    aria-pressed={!playing}
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   </button>
                   <button
                     onClick={() => go(-1)}
                     aria-label="Previous story"
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary"
+                    aria-controls="story-slide"
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => go(1)}
                     aria-label="Next story"
-                    className="grid h-10 w-10 place-items-center rounded-full bg-gradient-brand text-white shadow-brand transition hover:-translate-y-0.5"
+                    aria-controls="story-slide"
+                    className="grid h-10 w-10 place-items-center rounded-full bg-gradient-brand text-white shadow-brand transition hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="mt-6 flex gap-1.5">
+              <div className="mt-6 flex gap-1.5" role="tablist" aria-label="Select a story">
                 {STORIES.map((_, k) => (
                   <button
                     key={k}
                     onClick={() => setI(k)}
-                    aria-label={`Story ${k + 1}`}
-                    className="h-1.5 flex-1 overflow-hidden rounded-full bg-border"
+                    role="tab"
+                    aria-selected={k === i}
+                    aria-label={`Go to story ${k + 1} of ${n}: ${STORIES[k].name}`}
+                    tabIndex={k === i ? 0 : -1}
+                    className="h-1.5 flex-1 overflow-hidden rounded-full bg-border focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     <motion.div
                       className="h-full bg-gradient-brand"
@@ -624,13 +651,14 @@ function Stories() {
               </div>
             </motion.article>
 
-            <div className="grid gap-4 lg:col-span-2">
+            <div className="grid gap-4 lg:col-span-2" role="list" aria-label="All success stories">
               {STORIES.map((st, k) => (
                 <button
                   key={st.name}
                   onClick={() => setI(k)}
                   aria-current={k === i}
-                  className={`group rounded-2xl border p-5 text-left transition-all ${
+                  aria-label={`View story from ${st.name}, ${st.role}. Rating ${st.rating} out of 5. Outcome: ${st.outcome}`}
+                  className={`group rounded-2xl border p-5 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
                     k === i
                       ? "border-brand-primary bg-white shadow-brand"
                       : "border-border bg-white/70 shadow-soft hover:-translate-y-0.5 hover:border-brand-primary/40 hover:bg-white"
