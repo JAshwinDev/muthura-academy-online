@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   ArrowRight, Sparkles, Code2, Globe2, Brain, Smartphone, Monitor,
   GraduationCap, Award, Briefcase, Rocket, CheckCircle2, Star,
   Phone, MapPin, Mail, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
-  Play, Users, BookOpen, Trophy, TrendingUp, Quote, Pause,
+  Play, Users, BookOpen, Trophy, TrendingUp, Quote, Pause, Home,
 } from "lucide-react";
 import logoAsset from "@/assets/muthura-logo.asset.json";
 import heroStudents from "@/assets/hero-students.jpg";
+import logo from "@/assets/muthura-logo.jpg"
+
 
 const NAV = [
-  { href: "#home", label: "Home" },
-  { href: "#courses", label: "Courses" },
-  { href: "#internships", label: "Internships" },
-  { href: "#certificates", label: "Certificates" },
-  { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: "#home", label: "Home", icon: Home },
+  { href: "#courses", label: "Courses", icon: BookOpen },
+  { href: "#internships", label: "Internships", icon: Briefcase },
+  { href: "#certificates", label: "Certificates", icon: Award },
+  { href: "#about", label: "About", icon: Users },
+  { href: "#contact", label: "Contact", icon: Mail },
 ];
 
 function useScrolled(threshold = 24) {
@@ -32,6 +34,13 @@ function useScrolled(threshold = 24) {
 function Navbar() {
   const scrolled = useScrolled();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <header className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
       <nav
@@ -42,7 +51,7 @@ function Navbar() {
         }`}
       >
         <a href="#home" className="flex items-center gap-2.5">
-          <img src={logoAsset.url} alt="Muthura Academy" className="h-9 w-9 rounded-full object-cover" />
+          <img src={logo} alt="Muthura Academy" className="h-9 w-9 rounded-full object-cover" />
           <span className={`hidden text-sm font-bold tracking-tight sm:block ${scrolled ? "text-brand-navy" : "text-white"}`}>
             Muthura Academy
           </span>
@@ -69,7 +78,8 @@ function Navbar() {
             Enroll Now
           </a>
           <button
-            aria-label="Toggle menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
             className={`rounded-full p-2 md:hidden ${scrolled ? "text-brand-navy" : "text-white"}`}
           >
@@ -77,32 +87,53 @@ function Navbar() {
           </button>
         </div>
       </nav>
-      {open && (
-        <div className="absolute top-20 mx-4 w-[calc(100%-2rem)] max-w-6xl rounded-3xl border border-border bg-white p-4 shadow-soft md:hidden">
-          <ul className="flex flex-col gap-1">
-            {NAV.map((n) => (
-              <li key={n.href}>
-                <a
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.button
+              key="backdrop"
+              aria-label="Close menu"
+              onClick={() => setOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-brand-navy/25 backdrop-blur-[2px] md:hidden"
+            />
+            <div className="fixed right-4 top-24 z-50 flex flex-col items-end gap-3 md:hidden">
+              {NAV.map((n, i) => (
+                <motion.a
+                  key={n.href}
                   href={n.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-2xl px-4 py-2.5 text-sm font-medium text-brand-navy hover:bg-brand-light"
+                  initial={{ opacity: 0, y: -12, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.9 }}
+                  transition={{ delay: i * 0.05, duration: 0.22, ease: "easeOut" }}
+                  className="flex items-center gap-2.5 rounded-full border border-border/60 bg-white/95 py-2.5 pl-3 pr-5 text-sm font-semibold text-brand-navy shadow-brand backdrop-blur"
                 >
+                  <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-brand-light text-brand-primary">
+                    <n.icon className="h-4 w-4" />
+                  </span>
                   {n.label}
-                </a>
-              </li>
-            ))}
-            <li>
-              <a
+                </motion.a>
+              ))}
+              <motion.a
                 href="#contact"
                 onClick={() => setOpen(false)}
-                className="mt-2 block rounded-full bg-gradient-brand px-4 py-2.5 text-center text-sm font-semibold text-white"
+                initial={{ opacity: 0, y: -12, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.9 }}
+                transition={{ delay: NAV.length * 0.05, duration: 0.22, ease: "easeOut" }}
+                className="rounded-full bg-gradient-brand px-6 py-2.5 text-sm font-semibold text-white shadow-brand"
               >
-                Enroll Now
-              </a>
-            </li>
-          </ul>
-        </div>
-      )}
+                Enroll now
+              </motion.a>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -183,7 +214,7 @@ function Hero() {
           <div className="relative mx-auto aspect-square w-full max-w-md">
             <div className="absolute inset-0 rounded-full bg-gradient-brand opacity-20 blur-2xl" />
             <div className="relative flex h-full w-full items-center justify-center rounded-[2.5rem] border border-white/15 bg-white/5 p-8 backdrop-blur-xl shadow-brand">
-              <img src={logoAsset.url} alt="Muthura Academy logo" className="h-full w-full rounded-3xl object-contain" />
+              <img src={logo} alt="Muthura Academy logo" className="h-full w-full rounded-3xl object-contain" />
             </div>
             <FloatingCard className="absolute -left-6 top-8" icon={<GraduationCap className="h-5 w-5" />} title="1000+" sub="Students" />
             <FloatingCard className="absolute -right-4 top-1/3" icon={<Trophy className="h-5 w-5" />} title="20+" sub="Courses" />
@@ -420,7 +451,102 @@ function Internships() {
     </section>
   );
 }
+function TypewriterText({
+  words,
+  speed = 80,
+  deleteSpeed = 40,
+  pause = 1800,
+  className = "",
+}: {
+  words: string[];
+  speed?: number;
+  deleteSpeed?: number;
+  pause?: number;
+  className?: string;
+}) {
+  const [text, setText] = useState("");
+  const [wordIndex, setWordIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
+  useEffect(() => {
+    const current = words[wordIndex];
+
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (!deleting) {
+      if (text.length < current.length) {
+        timer = setTimeout(
+          () => setText(current.slice(0, text.length + 1)),
+          speed
+        );
+      } else {
+        timer = setTimeout(() => setDeleting(true), pause);
+      }
+    } else {
+      if (text.length > 0) {
+        timer = setTimeout(
+          () => setText(current.slice(0, text.length - 1)),
+          deleteSpeed
+        );
+      } else {
+        setDeleting(false);
+        setWordIndex((prev) => (prev + 1) % words.length);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [text, deleting, wordIndex, words, speed, deleteSpeed, pause]);
+
+  return (
+    <span className={className}>
+      {text}
+      <span className="animate-pulse">|</span>
+    </span>
+  );
+}
+
+function VerticalText({
+  words,
+  interval = 2500,
+  className = "",
+}: {
+  words: string[];
+  interval?: number;
+  className?: string;
+}) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % words.length);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [words.length, interval]);
+
+  return (
+    <div className={`overflow-hidden h-8 ${className}`}>
+      <motion.div
+        animate={{ y: -index * 32 }}
+        transition={{
+          duration: 0.5,
+          type: "spring",
+          stiffness: 80,
+          damping: 18,
+      }}
+      >
+        {words.concat(words[0]).map((word, i) => (
+          <div
+            key={i}
+            className="h-8 flex items-center font-bold"
+          >
+            {word}
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
 function Certificates() {
   const points = [
     "Skill recognition your recruiters trust",
@@ -446,20 +572,46 @@ function Certificates() {
         </motion.div>
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="relative">
           <div className="absolute -inset-8 rounded-[3rem] bg-gradient-brand opacity-15 blur-3xl" />
-          <div className="relative rotate-[-2deg] rounded-3xl border border-border bg-white p-8 shadow-brand transition-transform hover:rotate-0">
+          <div className="relative rotate:-2deg] rounded-3xl border border-border bg-white p-8 shadow-brand transition-transform hover:rotate-0">
             <div className="rounded-2xl border-2 border-dashed border-brand-primary/30 p-8">
               <div className="flex items-center justify-between">
-                <img src={logoAsset.url} alt="" className="h-10 w-10 rounded-full" />
+                <img src={logo} alt="" className="h-10 w-10 rounded-full" />
                 <span className="text-xs font-bold uppercase tracking-widest text-brand-primary">Certificate</span>
               </div>
               <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">This certifies that</p>
-              <p className="mt-1 text-2xl font-extrabold text-brand-navy">Your Name Here</p>
+
+              <p className="mt-1 text-2xl font-extrabold text-brand-navy">
+              <TypewriterText
+                words={[
+                  "Aravind K",
+                  "Divya S",
+                  "Karthik R",
+                  "Meena V",
+                  "Nivetha A",
+                  "Sathish P",
+                  "Your Name Here",
+                ]}
+                />
+              </p>
               <p className="mt-4 text-sm text-muted-foreground">has successfully completed the</p>
-              <p className="text-lg font-bold text-brand-navy">Full Stack Web Development (MERN)</p>
+              <VerticalText
+                    className="text-lg text-brand-navy"
+                    words={[
+                        "MERN Full Stack Web Development",
+                        "MEAN Full Stack Web Development",
+                        "Python Full Stack Development",
+                        "Java Full Stack Development",
+                        "AI & Machine Learning",
+                        "Flutter App Development",
+                        "React Development",
+                        "Computer Basics",
+                    ]}
+                />
               <p className="mt-1 text-sm text-muted-foreground">program at Muthura Academy.</p>
               <div className="mt-10 flex items-end justify-between">
                 <div>
-                  <div className="h-[1px] w-32 bg-brand-navy" />
+                  <p><b>Muthu Anushya</b></p>
+                  <div className="h-px w-32 bg-brand-navy" />
                   <p className="mt-1 text-xs text-muted-foreground">Director, Muthura Academy</p>
                 </div>
                 <div className="grid h-14 w-14 place-items-center rounded-full bg-gradient-brand text-white shadow-brand">
@@ -584,7 +736,7 @@ function Stories() {
               </div>
 
               <p className="relative mt-6 text-xl font-semibold leading-relaxed text-brand-navy md:text-2xl">
-                “{s.quote}”
+                "{s.quote}"
               </p>
 
               <div className="mt-8 flex items-start gap-3 rounded-2xl border border-brand-primary/15 bg-gradient-to-br from-brand-light/60 to-white p-4">
@@ -745,13 +897,12 @@ function Contact() {
           <div className="space-y-5 lg:col-span-2">
             <ContactCard icon={<MapPin className="h-5 w-5" />} title="Visit us" lines={["11/4A Koola Street,", "Udangudi,", "Thoothukudi District – 628203"]} />
             <ContactCard icon={<Phone className="h-5 w-5" />} title="Call us" lines={["+91 90477 54194", "+91 90804 50938"]} />
-            <ContactCard icon={<Mail className="h-5 w-5" />} title="Delivery" lines={["Offline classes in Udangudi", "Online classes across India"]} />
             <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
               <iframe
                 title="Muthura Academy location"
                 src="https://www.google.com/maps?q=Udangudi,+Thoothukudi&output=embed"
                 loading="lazy"
-                className="h-56 w-full border-0"
+                className="h-75 w-full border-0"
               />
             </div>
           </div>
@@ -813,7 +964,7 @@ function Footer() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <div className="flex items-center gap-3">
-              <img src={logoAsset.url} alt="Muthura Academy" className="h-11 w-11 rounded-full" />
+              <img src={logo} alt="Muthura Academy" className="h-11 w-11 rounded-full" />
               <div>
                 <div className="text-lg font-bold">Muthura Academy</div>
                 <div className="text-xs text-white/60">A Unit of Muthura Technologies</div>
