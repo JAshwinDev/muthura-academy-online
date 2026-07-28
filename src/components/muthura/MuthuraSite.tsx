@@ -1,20 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   ArrowRight, Sparkles, Code2, Globe2, Brain, Smartphone, Monitor,
   GraduationCap, Award, Briefcase, Rocket, CheckCircle2, Star,
-  Phone, MapPin, Mail, Menu, X, ChevronDown, ChevronLeft, ChevronRight,
-  Play, Users, BookOpen, Trophy, TrendingUp, Quote, Pause, Home,
+  Phone, MapPin, Mail, ChevronDown, ChevronLeft, ChevronRight,
+  Play, Users, BookOpen, Trophy, TrendingUp, Quote, Pause,
 } from "lucide-react";
-import logoAsset from "@/assets/muthura-logo.asset.json";
 import heroStudents from "@/assets/hero-students.jpg";
-import logo from "@/assets/muthura-logo.jpg"
+import logo from "@/assets/muthura-logo.jpg";
+import type { ReactNode } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { default as SwiperType } from "swiper";
+import { Navigation } from "swiper/modules";
 
+import "swiper/css";
+import "swiper/css/navigation";
 
 const NAV = [
-  { href: "#home", label: "Home", icon: Home },
   { href: "#courses", label: "Courses", icon: BookOpen },
-  { href: "#internships", label: "Internships", icon: Briefcase },
   { href: "#certificates", label: "Certificates", icon: Award },
   { href: "#about", label: "About", icon: Users },
   { href: "#contact", label: "Contact", icon: Mail },
@@ -31,110 +34,121 @@ function useScrolled(threshold = 24) {
   return scrolled;
 }
 
-function Navbar() {
-  const scrolled = useScrolled();
-  const [open, setOpen] = useState(false);
+function useActiveSection(ids: string[]) {
+  const [active, setActive] = useState(ids[0]);
+  const idsKey = ids.join(",");
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+    const elements = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        }
+      },
+      {
+        root: null,
+        rootMargin: "-140px 0px -60% 0px",
+        threshold: 0,
+      }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idsKey]);
+
+  return active;
+}
+
+function Navbar() {
+  const scrolled = useScrolled();
+  const sectionIds = NAV.map((n) => n.href.replace("#", ""));
+  const active = useActiveSection(sectionIds);
 
   return (
-    <header className="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
-      <nav
-        className={`flex w-full max-w-6xl items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-300 ${
-          scrolled
-            ? "border-border/60 bg-white/80 shadow-soft backdrop-blur-xl"
-            : "border-white/20 bg-white/10 backdrop-blur-md"
-        }`}
-      >
-        <a href="#home" className="flex items-center gap-2.5">
-          <img src={logo} alt="Muthura Academy" className="h-9 w-9 rounded-full object-cover" />
-          <span className={`hidden text-sm font-bold tracking-tight sm:block ${scrolled ? "text-brand-navy" : "text-white"}`}>
-            Muthura Academy
-          </span>
-        </a>
-        <ul className="hidden items-center gap-1 md:flex">
-          {NAV.map((n) => (
-            <li key={n.href}>
-              <a
-                href={n.href}
-                className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                  scrolled ? "text-brand-navy/80 hover:bg-brand-light hover:text-brand-navy" : "text-white/85 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {n.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div className="flex items-center gap-2">
+    <>
+      {/* Top bar — logo only */}
+      <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
+        <div
+          className={`flex w-full max-w-6xl items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-300 ${
+            scrolled
+              ? "border-border/60 bg-white/80 shadow-soft backdrop-blur-xl"
+              : "border-white/20 bg-white/10 backdrop-blur-md"
+          }`}
+        >
+          <a href="#home" className="flex items-center gap-2.5">
+            <img src={logo} alt="Muthura Academy" className="h-9 w-9 rounded-full object-cover" />
+            <span className={`text-sm font-bold tracking-tight ${scrolled ? "text-brand-navy" : "text-white"}`}>
+              Muthura Academy
+            </span>
+          </a>
+
+          <ul className="hidden items-center gap-1 md:flex">
+            {NAV.map((n) => (
+              <li key={n.href}>
+                <a
+                  href={n.href}
+                  className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                    scrolled
+                      ? "text-brand-navy/80 hover:bg-brand-light hover:text-brand-navy"
+                      : "text-white/85 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {n.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+
           <a
             href="#contact"
             className="hidden rounded-full bg-gradient-brand px-4 py-2 text-sm font-semibold text-white shadow-brand transition-transform hover:scale-105 md:inline-flex"
           >
             Enroll Now
           </a>
-          <button
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className={`grid h-11 w-11 place-items-center rounded-full md:hidden ${scrolled ? "text-brand-navy" : "text-white"}`}
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
         </div>
-      </nav>
+      </header>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.button
-              key="backdrop"
-              aria-label="Close menu"
-              onClick={() => setOpen(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-brand-navy/25 backdrop-blur-[2px] md:hidden"
-            />
-            <div className="fixed right-4 top-24 z-50 flex flex-col items-end gap-3 md:hidden">
-              {NAV.map((n, i) => (
-                <motion.a
-                  key={n.href}
-                  href={n.href}
-                  onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, y: -12, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.9 }}
-                  transition={{ delay: i * 0.05, duration: 0.22, ease: "easeOut" }}
-                  className="flex items-center gap-2.5 rounded-full border border-border/60 bg-white/95 py-2.5 pl-3 pr-5 text-sm font-semibold text-brand-navy shadow-brand backdrop-blur"
-                >
-                  <span className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-full bg-brand-light text-brand-primary">
-                    <n.icon className="h-4 w-4" />
-                  </span>
-                  {n.label}
-                </motion.a>
-              ))}
-              <motion.a
-                href="#contact"
-                onClick={() => setOpen(false)}
-                initial={{ opacity: 0, y: -12, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.9 }}
-                transition={{ delay: NAV.length * 0.05, duration: 0.22, ease: "easeOut" }}
-                className="rounded-full bg-gradient-brand px-6 py-2.5 text-sm font-semibold text-white shadow-brand"
-              >
-                Enroll now
-              </motion.a>
-            </div>
-          </>
-        )}
-      </AnimatePresence>
-    </header>
+      {/* Bottom app-style tab bar — mobile only */}
+      <nav
+        aria-label="Primary"
+        className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-6 pb-[env(safe-area-inset-bottom)] md:hidden"
+      >
+        <ul className="flex items-center gap-2 rounded-full bg-gradient-brand px-4 py-3.5 shadow-[0_8px_30px_rgba(15,23,42,0.25)] ring-1 ring-border">
+          {NAV.map((n) => {
+            const id = n.href.replace("#", "");
+            const isActive = active === id;
+            return (
+              <li key={n.href}>
+                <a href={n.href} className="flex flex-col items-center gap-1.5 px-4 py-1">
+                  <n.icon
+                    className={`h-5 w-5 transition-all ${
+                      isActive ? "text-white drop-shadow-[0_0_6px_rgba(56,189,248,0.8)]" : "text-white/60"
+                    }`}
+                    strokeWidth={1.75}
+                  />
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full transition-all ${
+                      isActive ? "bg-brand-cyan shadow-[0_0_6px_rgba(56,189,248,0.9)]" : "bg-transparent"
+                    }`}
+                  />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
   );
 }
 
@@ -192,13 +206,21 @@ function Hero() {
           </div>
           <div className="mt-10 flex items-center gap-6 text-sm text-white/70">
             <div className="flex -space-x-2">
-              {["A","B","C","D"].map((c,i) => (
-                <div key={c} className="grid h-9 w-9 place-items-center rounded-full border-2 border-brand-navy bg-gradient-brand text-xs font-bold text-white" style={{zIndex: 4-i}}>{c}</div>
+              {["A", "B", "C", "D"].map((c, i) => (
+                <div
+                  key={c}
+                  className="grid h-9 w-9 place-items-center rounded-full border-2 border-brand-navy bg-gradient-brand text-xs font-bold text-white"
+                  style={{ zIndex: 4 - i }}
+                >
+                  {c}
+                </div>
               ))}
             </div>
             <div>
               <div className="flex items-center gap-1 text-white">
-                {Array.from({length:5}).map((_,i)=>(<Star key={i} className="h-3.5 w-3.5 fill-brand-cyan text-brand-cyan" />))}
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-brand-cyan text-brand-cyan" />
+                ))}
                 <span className="ml-1 font-semibold">4.9/5</span>
               </div>
               <div>Loved by 1000+ students</div>
@@ -227,7 +249,17 @@ function Hero() {
   );
 }
 
-function FloatingCard({ className = "", icon, title, sub }: { className?: string; icon: React.ReactNode; title: string; sub: string }) {
+function FloatingCard({
+  className = "",
+  icon,
+  title,
+  sub,
+}: {
+  className?: string;
+  icon: ReactNode;
+  title: string;
+  sub: string;
+}) {
   return (
     <motion.div
       initial={{ y: 0 }}
@@ -250,7 +282,9 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const mv = useMotionValue(0);
   const spring = useSpring(mv, { duration: 1500, bounce: 0 });
   const rounded = useTransform(spring, (v) => `${Math.round(v).toLocaleString()}${suffix}`);
-  useEffect(() => { if (inView) mv.set(to); }, [inView, to, mv]);
+  useEffect(() => {
+    if (inView) mv.set(to);
+  }, [inView, to, mv]);
   return <motion.span ref={ref}>{rounded}</motion.span>;
 }
 
@@ -299,7 +333,15 @@ function WhyChoose() {
   return (
     <section id="about" className="py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <SectionHeader eyebrow="Why Muthura Academy" title={<>Everything you need to <span className="text-gradient-brand">launch a great career</span></>} subtitle="A future-ready academy blending offline mentorship with modern online delivery — so learning fits your life." />
+        <SectionHeader
+          eyebrow="Why Muthura Academy"
+          title={
+            <>
+              Everything you need to <span className="text-gradient-brand">launch a great career</span>
+            </>
+          }
+          subtitle="A future-ready academy blending offline mentorship with modern online delivery — so learning fits your life."
+        />
         <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {WHY.map((w, i) => (
             <motion.div
@@ -326,7 +368,15 @@ function WhyChoose() {
   );
 }
 
-function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: React.ReactNode; subtitle: string }) {
+function SectionHeader({
+  eyebrow,
+  title,
+  subtitle,
+}: {
+  eyebrow: string;
+  title: React.ReactNode;
+  subtitle: string;
+}) {
   return (
     <div className="mx-auto max-w-3xl text-center">
       <span className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-light px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-primary">
@@ -372,86 +422,122 @@ const COURSES = [
 ];
 
 function Courses() {
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
   return (
-    <section id="courses" className="bg-brand-light/40 py-24 md:py-32">
+    <section id="courses" className="overflow-x-hidden bg-brand-light/40 py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <SectionHeader eyebrow="Our Courses" title={<>Programs built for the <span className="text-gradient-brand">modern learner</span></>} subtitle="Hands-on courses delivered offline in Udangudi and online across India — with mentorship, projects and certificates." />
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {COURSES.map((c, i) => (
-            <motion.article
-              key={c.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: (i % 3) * 0.08, duration: 0.5 }}
-              className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-white p-7 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-brand"
-            >
-              <div className="mb-5 flex items-center justify-between">
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-brand text-white shadow-brand">
-                  <c.icon className="h-6 w-6" />
-                </div>
-                <span className="rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-primary">{c.duration}</span>
-              </div>
-              <h3 className="text-xl font-bold text-brand-navy">{c.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {c.tags.map((t) => (
-                  <span key={t} className="rounded-full border border-border bg-white px-2.5 py-0.5 text-xs font-medium text-brand-navy/80">{t}</span>
-                ))}
-              </div>
-              <div className="mt-6 flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
-                <span><b className="text-brand-navy">Level:</b> {c.level}</span>
-                <span><b className="text-brand-navy">Mode:</b> {c.mode}</span>
-              </div>
-              <a href="#contact" className="mt-5 inline-flex items-center justify-between rounded-full bg-brand-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
-                Enroll now <ArrowRight className="h-4 w-4" />
-              </a>
-            </motion.article>
-          ))}
+        <SectionHeader
+          eyebrow="Our Courses"
+          title={
+            <>
+              Programs built for the{" "}
+              <span className="text-gradient-brand">modern learner</span>
+            </>
+          }
+          subtitle="Hands-on courses delivered offline in Udangudi and online across India — with mentorship, projects and certificates."
+        />
+
+        <div className="relative mt-16">
+          <Swiper
+            modules={[Navigation]}
+            onSwiper={(sw) => {
+              swiperRef.current = sw;
+              setAtStart(sw.isBeginning);
+              setAtEnd(sw.isEnd);
+            }}
+            onSlideChange={(sw) => {
+              setAtStart(sw.isBeginning);
+              setAtEnd(sw.isEnd);
+            }}
+            speed={550}
+            spaceBetween={16}
+            slidesPerView={1}
+            centeredSlides={false}
+            breakpoints={{
+              480: { slidesPerView: 1.1, spaceBetween: 16 },
+              640: { slidesPerView: 1.5, spaceBetween: 20 },
+              768: { slidesPerView: 2, spaceBetween: 24 },
+              1024: { slidesPerView: 3, spaceBetween: 24 },
+            }}
+            className="!overflow-visible !pb-4"
+          >
+            {COURSES.map((c, i) => (
+              <SwiperSlide key={c.title} className="h-auto">
+                <motion.article
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: (i % 3) * 0.08, duration: 0.5 }}
+                  className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-brand sm:p-7"
+                >
+                  <div className="mb-5 flex items-center justify-between">
+                    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-brand text-white shadow-brand">
+                      <c.icon className="h-6 w-6" />
+                    </div>
+                    <span className="rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-primary">
+                      {c.duration}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-brand-navy">{c.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
+
+                  <div className="mt-5 flex flex-wrap gap-1.5">
+                    {c.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-full border border-border bg-white px-2.5 py-0.5 text-xs font-medium text-brand-navy/80"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 flex items-center justify-between border-t border-border pt-5 text-xs text-muted-foreground">
+                    <span>
+                      <b className="text-brand-navy">Level:</b> {c.level}
+                    </span>
+                    <span>
+                      <b className="text-brand-navy">Mode:</b> {c.mode}
+                    </span>
+                  </div>
+
+                  <a
+                    href="#contact"
+                    className="mt-5 inline-flex items-center justify-between rounded-full bg-brand-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary"
+                  >
+                    Enroll now <ArrowRight className="h-4 w-4" />
+                  </a>
+                </motion.article>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+          <button
+            onClick={() => swiperRef.current?.slidePrev()}
+            disabled={atStart}
+            className="absolute left-1 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-border bg-white/95 shadow-soft backdrop-blur transition-all hover:bg-brand-light hover:scale-105 disabled:pointer-events-none disabled:opacity-30 sm:-left-4 sm:h-11 sm:w-11 md:-left-6"
+            aria-label="Previous courses"
+          >
+            <ArrowRight className="h-4 w-4 rotate-180 text-brand-navy" />
+          </button>
+          <button
+            onClick={() => swiperRef.current?.slideNext()}
+            disabled={atEnd}
+            className="absolute right-1 top-1/2 z-20 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-border bg-white/95 shadow-soft backdrop-blur transition-all hover:bg-brand-light hover:scale-105 disabled:pointer-events-none disabled:opacity-30 sm:-right-4 sm:h-11 sm:w-11 md:-right-6"
+            aria-label="Next courses"
+          >
+            <ArrowRight className="h-4 w-4 text-brand-navy" />
+          </button>
         </div>
       </div>
     </section>
   );
 }
 
-function Internships() {
-  const items = [
-    { icon: Rocket, title: "Real-world Projects", desc: "Contribute to live products with measurable outcomes." },
-    { icon: Brain, title: "Build Skills", desc: "Grow across code, collaboration, tooling and communication." },
-    { icon: Briefcase, title: "Gain Experience", desc: "Work like a professional under mentorship from day one." },
-    { icon: Trophy, title: "Boost Your Career", desc: "Stand out with portfolio-ready achievements and LORs." },
-  ];
-  return (
-    <section id="internships" className="relative overflow-hidden bg-brand-navy py-24 text-white md:py-32">
-      <div className="absolute -top-40 left-1/2 h-96 w-[80%] -translate-x-1/2 rounded-full bg-brand-primary/30 blur-3xl" />
-      <div className="relative mx-auto max-w-7xl px-6">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-cyan">Internships</span>
-          <h2 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">Internships for every college student</h2>
-          <p className="mt-4 text-white/70">Turn what you learn into industry experience — with structured internships built around real teams and real deadlines.</p>
-        </div>
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {items.map((it, i) => (
-            <motion.div
-              key={it.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-              className="rounded-3xl border border-white/10 bg-white/5 p-7 backdrop-blur transition-all hover:-translate-y-1 hover:border-brand-cyan/40 hover:bg-white/10"
-            >
-              <div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-gradient-brand text-white shadow-brand">
-                <it.icon className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-bold">{it.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{it.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 function TypewriterText({
   words,
   speed = 80,
@@ -476,19 +562,13 @@ function TypewriterText({
 
     if (!deleting) {
       if (text.length < current.length) {
-        timer = setTimeout(
-          () => setText(current.slice(0, text.length + 1)),
-          speed
-        );
+        timer = setTimeout(() => setText(current.slice(0, text.length + 1)), speed);
       } else {
         timer = setTimeout(() => setDeleting(true), pause);
       }
     } else {
       if (text.length > 0) {
-        timer = setTimeout(
-          () => setText(current.slice(0, text.length - 1)),
-          deleteSpeed
-        );
+        timer = setTimeout(() => setText(current.slice(0, text.length - 1)), deleteSpeed);
       } else {
         setDeleting(false);
         setWordIndex((prev) => (prev + 1) % words.length);
@@ -534,13 +614,10 @@ function VerticalText({
           type: "spring",
           stiffness: 80,
           damping: 18,
-      }}
+        }}
       >
         {words.concat(words[0]).map((word, i) => (
-          <div
-            key={i}
-            className="h-8 flex items-center font-bold"
-          >
+          <div key={i} className="h-8 flex items-center font-bold">
             {word}
           </div>
         ))}
@@ -548,6 +625,7 @@ function VerticalText({
     </div>
   );
 }
+
 function Certificates() {
   const points = [
     "Skill recognition your recruiters trust",
@@ -558,10 +636,21 @@ function Certificates() {
   return (
     <section id="certificates" className="py-24 md:py-32">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-12 lg:gap-16">
-        <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-light px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-primary">Certificates</span>
-          <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-brand-navy sm:text-5xl">Recognize your skills. <span className="text-gradient-brand">Showcase your achievements.</span></h2>
-          <p className="mt-4 text-muted-foreground">Every Muthura Academy program ends with a certificate that reflects what you actually built — not just what you attended.</p>
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-light px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-primary">
+            Certificates
+          </span>
+          <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-brand-navy sm:text-5xl">
+            Recognize your skills. <span className="text-gradient-brand">Showcase your achievements.</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            Every Muthura Academy program ends with a certificate that reflects what you actually built — not just what you attended.
+          </p>
           <ul className="mt-8 space-y-3">
             {points.map((p) => (
               <li key={p} className="flex items-start gap-3 text-brand-navy">
@@ -571,9 +660,15 @@ function Certificates() {
             ))}
           </ul>
         </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="relative">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative"
+        >
           <div className="absolute -inset-8 rounded-[3rem] bg-gradient-brand opacity-15 blur-3xl" />
-          <div className="relative rotate:-2deg] rounded-3xl border border-border bg-white p-8 shadow-brand transition-transform hover:rotate-0">
+          <div className="relative -rotate-2 rounded-3xl border border-border bg-white p-8 shadow-brand transition-transform hover:rotate-0">
             <div className="rounded-2xl border-2 border-dashed border-brand-primary/30 p-8">
               <div className="flex items-center justify-between">
                 <img src={logo} alt="" className="h-10 w-10 rounded-full" />
@@ -582,36 +677,30 @@ function Certificates() {
               <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">This certifies that</p>
 
               <p className="mt-1 text-2xl font-extrabold text-brand-navy">
-              <TypewriterText
-                words={[
-                  "Aravind K",
-                  "Divya S",
-                  "Karthik R",
-                  "Meena V",
-                  "Nivetha A",
-                  "Sathish P",
-                  "Your Name Here",
-                ]}
+                <TypewriterText
+                  words={["Aravind K", "Divya S", "Karthik R", "Meena V", "Nivetha A", "Sathish P", "Your Name Here"]}
                 />
               </p>
               <p className="mt-4 text-sm text-muted-foreground">has successfully completed the</p>
               <VerticalText
-                    className="text-lg text-brand-navy"
-                    words={[
-                        "MERN Full Stack Web Development",
-                        "MEAN Full Stack Web Development",
-                        "Python Full Stack Development",
-                        "Java Full Stack Development",
-                        "AI & Machine Learning",
-                        "Flutter App Development",
-                        "React Development",
-                        "Computer Basics",
-                    ]}
-                />
+                className="text-lg text-brand-navy text-sm "
+                words={[
+                  "MERN Full Stack Web Development",
+                  "MEAN Full Stack Web Development",
+                  "Python Full Stack Development",
+                  "Java Full Stack Development",
+                  "AI & Machine Learning",
+                  "Flutter App Development",
+                  "React Development",
+                  "Computer Basics",
+                ]}
+              />
               <p className="mt-1 text-sm text-muted-foreground">program at Muthura Academy.</p>
               <div className="mt-10 flex items-end justify-between">
                 <div>
-                  <p><b>Muthu Anushya</b></p>
+                  <p>
+                    <b>Muthu Anushya</b>
+                  </p>
                   <div className="h-px w-32 bg-brand-navy" />
                   <p className="mt-1 text-xs text-muted-foreground">Director, Muthura Academy</p>
                 </div>
@@ -663,13 +752,26 @@ function Stories() {
   const s = STORIES[i];
   const go = (dir: number) => setI((p) => (p + dir + n) % n);
   const regionRef = useRef<HTMLDivElement>(null);
+  const storyCardRef = useRef<HTMLDivElement>(null);
+  const pendingScrollRef = useRef(false);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
-    else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-    else if (e.key === "Home") { e.preventDefault(); setI(0); }
-    else if (e.key === "End") { e.preventDefault(); setI(n - 1); }
-    else if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); setPlaying((p) => !p); }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      go(1);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      go(-1);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setI(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setI(n - 1);
+    } else if (e.key === " " || e.key === "Spacebar") {
+      e.preventDefault();
+      setPlaying((p) => !p);
+    }
   };
 
   useEffect(() => {
@@ -682,6 +784,25 @@ function Stories() {
     setAnnouncement(`Showing story ${i + 1} of ${n}: ${s.name}, ${s.role}. Outcome: ${s.outcome}.`);
   }, [i, n, s]);
 
+  useEffect(() => {
+    if (!pendingScrollRef.current) return;
+    pendingScrollRef.current = false;
+
+    const scrollToCard = () => {
+      const el = storyCardRef.current;
+      if (!el) return;
+      const headerOffset = window.innerWidth < 768 ? 96 : 112;
+      const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top, behavior: "smooth" });
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(scrollToCard);
+    });
+    const fallback = setTimeout(scrollToCard, 150);
+    return () => clearTimeout(fallback);
+  }, [i]);
+
   return (
     <section className="relative overflow-hidden bg-brand-light/40 py-24 md:py-32">
       <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-brand-cyan/20 blur-3xl" />
@@ -689,7 +810,11 @@ function Stories() {
       <div className="relative mx-auto max-w-7xl px-6">
         <SectionHeader
           eyebrow="Success Stories"
-          title={<>Careers built at <span className="text-gradient-brand">Muthura Academy</span></>}
+          title={
+            <>
+              Careers built at <span className="text-gradient-brand">Muthura Academy</span>
+            </>
+          }
           subtitle="Real students. Real ratings. Real outcomes."
         />
 
@@ -704,13 +829,16 @@ function Stories() {
           onMouseEnter={() => setPlaying(false)}
           onMouseLeave={() => setPlaying(true)}
           onFocus={() => setPlaying(false)}
-          onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setPlaying(true); }}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) setPlaying(true);
+          }}
         >
           <div aria-live="polite" aria-atomic="true" className="sr-only">
             {announcement}
           </div>
           <div className="grid gap-8 lg:grid-cols-5">
             <motion.article
+              ref={storyCardRef}
               key={s.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -790,13 +918,17 @@ function Stories() {
               </div>
 
               <div className="mt-6 flex gap-1.5" role="tablist" aria-label="Select a story">
-                {STORIES.map((_, k) => (
+                {STORIES.map((st, k) => (
                   <button
-                    key={k}
-                    onClick={() => setI(k)}
+                    key={st.name}
+                    onClick={() => {
+                      pendingScrollRef.current = true;
+                      setI(k);
+                      setPlaying(true);
+                    }}
                     role="tab"
                     aria-selected={k === i}
-                    aria-label={`Go to story ${k + 1} of ${n}: ${STORIES[k].name}`}
+                    aria-label={`Go to story ${k + 1} of ${n}: ${st.name}`}
                     tabIndex={k === i ? 0 : -1}
                     className="h-1.5 flex-1 overflow-hidden rounded-full bg-border focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
@@ -815,7 +947,11 @@ function Stories() {
               {STORIES.map((st, k) => (
                 <button
                   key={st.name}
-                  onClick={() => setI(k)}
+                  onClick={() => {
+                    pendingScrollRef.current = true;
+                    setI(k);
+                    setPlaying(true);
+                  }}
                   aria-current={k === i}
                   aria-label={`View story from ${st.name}, ${st.role}. Rating ${st.rating} out of 5. Outcome: ${st.outcome}`}
                   className={`group rounded-2xl border p-5 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
@@ -825,7 +961,11 @@ function Stories() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`grid h-10 w-10 place-items-center rounded-full text-sm font-bold ${k === i ? "bg-gradient-brand text-white" : "bg-brand-light text-brand-primary"}`}>
+                    <div
+                      className={`grid h-10 w-10 place-items-center rounded-full text-sm font-bold ${
+                        k === i ? "bg-gradient-brand text-white" : "bg-brand-light text-brand-primary"
+                      }`}
+                    >
                       {st.name[0]}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -864,7 +1004,15 @@ function FAQ() {
   return (
     <section className="py-24 md:py-32">
       <div className="mx-auto max-w-4xl px-6">
-        <SectionHeader eyebrow="FAQ" title={<>Answers to <span className="text-gradient-brand">common questions</span></>} subtitle="Everything you might want to know before joining Muthura Academy." />
+        <SectionHeader
+          eyebrow="FAQ"
+          title={
+            <>
+              Answers to <span className="text-gradient-brand">common questions</span>
+            </>
+          }
+          subtitle="Everything you might want to know before joining Muthura Academy."
+        />
         <div className="mt-14 space-y-3">
           {FAQS.map((f, i) => (
             <div key={f.q} className="overflow-hidden rounded-2xl border border-border bg-white shadow-soft">
@@ -874,9 +1022,15 @@ function FAQ() {
                 aria-expanded={open === i}
               >
                 <span className="text-base font-semibold text-brand-navy">{f.q}</span>
-                <ChevronDown className={`h-5 w-5 flex-shrink-0 text-brand-primary transition-transform ${open === i ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-5 w-5 flex-shrink-0 text-brand-primary transition-transform ${open === i ? "rotate-180" : ""}`}
+                />
               </button>
-              <div className={`grid transition-all duration-300 ${open === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+              <div
+                className={`grid transition-all duration-300 ${
+                  open === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
                 <div className="overflow-hidden">
                   <p className="px-6 pb-6 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
                 </div>
@@ -893,11 +1047,34 @@ function Contact() {
   return (
     <section id="contact" className="bg-brand-light/40 py-24 md:py-32">
       <div className="mx-auto max-w-7xl px-6">
-        <SectionHeader eyebrow="Contact" title={<>Let's build your <span className="text-gradient-brand">future together</span></>} subtitle="Talk to an advisor about courses, schedules and internships — we usually reply within a few hours." />
+        <SectionHeader
+          eyebrow="Contact"
+          title={
+            <>
+              Let's build your <span className="text-gradient-brand">future together</span>
+            </>
+          }
+          subtitle="Talk to an advisor about courses, schedules and internships — we usually reply within a few hours."
+        />
         <div className="mt-16 grid gap-8 lg:grid-cols-5">
           <div className="space-y-5 lg:col-span-2">
-            <ContactCard icon={<MapPin className="h-5 w-5" />} title="Visit us" lines={["11/4A Koola Street,", "Udangudi,", "Thoothukudi District – 628203"]} />
-            <ContactCard icon={<Phone className="h-5 w-5" />} title="Call us" lines={["+91 90477 54194", "+91 90804 50938"]} />
+            <ContactCard
+              icon={<MapPin className="h-5 w-5" />}
+              title="Visit us"
+              lines={["11/4A Koola Street,", "Udangudi,", "Thoothukudi District – 628203"]}
+            />
+            <ContactCard
+              icon={<Phone className="h-5 w-5" />}
+              title="Call us"
+              lines={[
+                <a key="1" href="tel:+919047754194" className="hover:text-brand-primary transition-colors">
+                  +91 90477 54194
+                </a>,
+                <a key="2" href="tel:+919080450938" className="hover:text-brand-primary transition-colors">
+                  +91 90804 50938
+                </a>,
+              ]}
+            />
             <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
               <iframe
                 title="Muthura Academy location"
@@ -908,7 +1085,10 @@ function Contact() {
             </div>
           </div>
           <form
-            onSubmit={(e) => { e.preventDefault(); alert("Thanks! Our advisor will reach out shortly."); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              alert("Thanks! Our advisor will reach out shortly.");
+            }}
             className="space-y-5 rounded-3xl border border-border bg-white p-8 shadow-soft lg:col-span-3"
           >
             <div className="grid gap-5 sm:grid-cols-2">
@@ -918,16 +1098,29 @@ function Contact() {
             <Field label="Email" name="email" type="email" placeholder="you@email.com" />
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-brand-navy">I'm interested in</label>
-              <select name="course" className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20">
-                {COURSES.map((c) => (<option key={c.title}>{c.title}</option>))}
+              <select
+                name="course"
+                className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+              >
+                {COURSES.map((c) => (
+                  <option key={c.title}>{c.title}</option>
+                ))}
                 <option>Internship</option>
               </select>
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-semibold text-brand-navy">Message</label>
-              <textarea name="message" rows={4} placeholder="Tell us a bit about your goals…" className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20" />
+              <textarea
+                name="message"
+                rows={4}
+                placeholder="Tell us a bit about your goals…"
+                className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+              />
             </div>
-            <button type="submit" className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-6 py-3.5 text-sm font-semibold text-white shadow-brand transition-transform hover:scale-[1.02]">
+            <button
+              type="submit"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-6 py-3.5 text-sm font-semibold text-white shadow-brand transition-transform hover:scale-[1.02]"
+            >
               Send Enquiry <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </button>
           </form>
@@ -937,23 +1130,48 @@ function Contact() {
   );
 }
 
-function ContactCard({ icon, title, lines }: { icon: React.ReactNode; title: string; lines: string[] }) {
+function ContactCard({ icon, title, lines }: { icon: React.ReactNode; title: string; lines: ReactNode[] }) {
   return (
     <div className="flex items-start gap-4 rounded-3xl border border-border bg-white p-6 shadow-soft">
-      <div className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-2xl bg-gradient-brand text-white shadow-brand">{icon}</div>
+      <div className="grid h-11 w-11 flex-shrink-0 place-items-center rounded-2xl bg-gradient-brand text-white shadow-brand">
+        {icon}
+      </div>
       <div>
         <div className="text-sm font-bold text-brand-navy">{title}</div>
-        {lines.map((l) => (<div key={l} className="text-sm text-muted-foreground">{l}</div>))}
+        {lines.map((l, idx) => (
+          <div key={idx} className="text-sm text-muted-foreground">
+            {l}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function Field({ label, name, type = "text", placeholder }: { label: string; name: string; type?: string; placeholder?: string }) {
+function Field({
+  label,
+  name,
+  type = "text",
+  placeholder,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+}) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-semibold text-brand-navy" htmlFor={name}>{label}</label>
-      <input id={name} name={name} type={type} placeholder={placeholder} required className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20" />
+      <label className="mb-1.5 block text-sm font-semibold text-brand-navy" htmlFor={name}>
+        {label}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        placeholder={placeholder}
+        required
+        className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+      />
     </div>
   );
 }
@@ -980,9 +1198,32 @@ function Footer() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-8 lg:col-span-7 lg:grid-cols-3">
-            <FooterCol title="Explore" links={[["Home","#home"],["Courses","#courses"],["Internships","#internships"],["Certificates","#certificates"]]} />
-            <FooterCol title="Academy" links={[["About","#about"],["Success Stories","#"],["FAQ","#"],["Contact","#contact"]]} />
-            <FooterCol title="Contact" links={[["+91 90477 54194","tel:+919047754194"],["+91 90804 50938","tel:+919080450938"],["Udangudi, Thoothukudi","#contact"]]} />
+            <FooterCol
+              title="Explore"
+              links={[
+                ["Home", "#home"],
+                ["Courses", "#courses"],
+                ["Internships", "#internships"],
+                ["Certificates", "#certificates"],
+              ]}
+            />
+            <FooterCol
+              title="Academy"
+              links={[
+                ["About", "#about"],
+                ["Success Stories", "#"],
+                ["FAQ", "#"],
+                ["Contact", "#contact"],
+              ]}
+            />
+            <FooterCol
+              title="Contact"
+              links={[
+                ["+91 90477 54194", "tel:+919047754194"],
+                ["+91 90804 50938", "tel:+919080450938"],
+                ["Udangudi, Thoothukudi", "#contact"],
+              ]}
+            />
           </div>
         </div>
         <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-sm text-white/60 sm:flex-row sm:items-center">
@@ -1000,7 +1241,11 @@ function FooterCol({ title, links }: { title: string; links: [string, string][] 
       <div className="text-sm font-bold text-white">{title}</div>
       <ul className="mt-4 space-y-2.5">
         {links.map(([label, href]) => (
-          <li key={label}><a href={href} className="text-sm text-white/60 transition-colors hover:text-brand-cyan">{label}</a></li>
+          <li key={label}>
+            <a href={href} className="text-sm text-white/60 transition-colors hover:text-brand-cyan">
+              {label}
+            </a>
+          </li>
         ))}
       </ul>
     </div>
@@ -1039,15 +1284,22 @@ function FloatingSocials() {
       color: "#25D366",
       icon: WhatsAppIcon,
     },
-    { name: "Instagram", href: "https://www.instagram.com/muthura_technologies/", color: "#E4405F", icon: InstagramIcon },
-    { name: "YouTube", href: "https://www.youtube.com/@muthura_technologies", color: "#FF0000", icon: YouTubeIcon },
+    {
+      name: "Instagram",
+      href: "https://www.instagram.com/muthura_technologies/",
+      color: "#E4405F",
+      icon: InstagramIcon,
+    },
+    {
+      name: "YouTube",
+      href: "https://www.youtube.com/@muthura_technologies",
+      color: "#FF0000",
+      icon: YouTubeIcon,
+    },
   ];
 
   return (
-    <aside
-      aria-label="Social links"
-      className="fixed right-4 bottom-6 z-50 flex flex-col items-end gap-3"
-    >
+    <aside aria-label="Social links" className="fixed right-4 bottom-20 z-40 flex flex-col items-end gap-3 md:bottom-6">
       {links.map((item) => {
         const Icon = item.icon;
         return (
@@ -1073,13 +1325,12 @@ function FloatingSocials() {
 
 export function MuthuraSite() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-background text-foreground pb-16 md:pb-0">
       <Navbar />
       <Hero />
       <TrustStrip />
       <WhyChoose />
       <Courses />
-      <Internships />
       <Certificates />
       <Stories />
       <FAQ />
