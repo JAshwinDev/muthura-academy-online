@@ -81,7 +81,7 @@ function Navbar() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className={`rounded-full p-2 md:hidden ${scrolled ? "text-brand-navy" : "text-white"}`}
+            className={`grid h-11 w-11 place-items-center rounded-full md:hidden ${scrolled ? "text-brand-navy" : "text-white"}`}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -140,19 +140,20 @@ function Navbar() {
 
 function Hero() {
   return (
-    <section id="home" className="relative isolate min-h-[100svh] overflow-hidden">
+    <section id="home" className="relative isolate min-h-[100svh] overflow-hidden landscape:min-h-0">
       <img
         src={heroStudents}
         alt="Students learning at Muthura Academy"
         width={1600}
         height={1200}
+        sizes="100vw"
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/95 via-brand-navy/85 to-brand-primary/70" />
       <div className="absolute -top-40 -left-20 h-96 w-96 rounded-full bg-brand-cyan/30 blur-3xl" />
       <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-primary/40 blur-3xl" />
 
-      <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-1 items-center gap-12 px-6 pb-24 pt-40 lg:grid-cols-12">
+      <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-1 items-center gap-12 px-6 pb-16 pt-32 sm:pb-20 sm:pt-36 lg:grid-cols-12 lg:pb-24 lg:pt-40 landscape:min-h-0 landscape:py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -163,7 +164,7 @@ function Hero() {
             <Sparkles className="h-3.5 w-3.5 text-brand-cyan" />
             Free AI Tools Training for every student
           </span>
-          <h1 className="mt-6 text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl">
             Dream Big.<br />
             Learn Smart.<br />
             <span className="text-gradient-brand bg-gradient-to-r from-brand-cyan to-white bg-clip-text text-transparent">
@@ -556,7 +557,7 @@ function Certificates() {
   ];
   return (
     <section id="certificates" className="py-24 md:py-32">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-12 lg:gap-16">
         <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-light px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-primary">Certificates</span>
           <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-brand-navy sm:text-5xl">Recognize your skills. <span className="text-gradient-brand">Showcase your achievements.</span></h2>
@@ -765,7 +766,7 @@ function Stories() {
                     onClick={() => setPlaying((p) => !p)}
                     aria-label={playing ? "Pause story auto-rotation" : "Play story auto-rotation"}
                     aria-pressed={!playing}
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    className="grid h-11 w-11 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   </button>
@@ -773,7 +774,7 @@ function Stories() {
                     onClick={() => go(-1)}
                     aria-label="Previous story"
                     aria-controls="story-slide"
-                    className="grid h-10 w-10 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    className="grid h-11 w-11 place-items-center rounded-full border border-border bg-white text-brand-navy transition hover:border-brand-primary hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
@@ -781,7 +782,7 @@ function Stories() {
                     onClick={() => go(1)}
                     aria-label="Next story"
                     aria-controls="story-slide"
-                    className="grid h-10 w-10 place-items-center rounded-full bg-gradient-brand text-white shadow-brand transition hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    className="grid h-11 w-11 place-items-center rounded-full bg-gradient-brand text-white shadow-brand transition hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
@@ -902,7 +903,7 @@ function Contact() {
                 title="Muthura Academy location"
                 src="https://www.google.com/maps?q=Udangudi,+Thoothukudi&output=embed"
                 loading="lazy"
-                className="h-75 w-full border-0"
+                className="h-[280px] w-full border-0 sm:h-[320px]"
               />
             </div>
           </div>
