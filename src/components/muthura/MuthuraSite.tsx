@@ -1078,7 +1078,8 @@ function Contact() {
             <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
               <iframe
                 title="Muthura Academy location"
-                src="https://www.google.com/maps?q=Udangudi,+Thoothukudi&output=embed"
+                // src="https://www.google.com/maps?q=Udangudi,+Thoothukudi&output=embed"
+           src="https://www.google.com/maps?q=11/4A+Koola+Street,+Udangudi,+Thoothukudi+District,+Tamil+Nadu+628203&output=embed"
                 loading="lazy"
                 className="h-[280px] w-full border-0 sm:h-[320px]"
               />
