@@ -80,7 +80,7 @@ function Navbar() {
       {/* Top bar — logo only */}
       <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
         <div
-          className={`flex w-full max-w-6xl items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-300 ${
+          className={`flex w-full max-w-[1600px] items-center justify-between rounded-full border px-4 py-2.5 transition-all duration-300 ${
             scrolled
               ? "border-border/60 bg-white/80 shadow-soft backdrop-blur-xl"
               : "border-white/20 bg-white/10 backdrop-blur-md"
@@ -167,7 +167,7 @@ function Hero() {
       <div className="absolute -top-40 -left-20 h-96 w-96 rounded-full bg-brand-cyan/30 blur-3xl" />
       <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-brand-primary/40 blur-3xl" />
 
-      <div className="relative mx-auto grid min-h-[100svh] max-w-7xl grid-cols-1 items-center gap-12 px-6 pb-16 pt-32 sm:pb-20 sm:pt-36 lg:grid-cols-12 lg:pb-24 lg:pt-40 landscape:min-h-0 landscape:py-24">
+      <div className="relative mx-auto grid min-h-[100svh] max-w-[1800px] grid-cols-1 items-center gap-12 2xl:gap-20 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pb-16 pt-32 sm:pb-20 sm:pt-36 lg:grid-cols-12 lg:pb-24 lg:pt-40 landscape:min-h-0 landscape:py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -178,7 +178,7 @@ function Hero() {
             <Sparkles className="h-3.5 w-3.5 text-brand-cyan" />
             Free AI Tools Training for every student
           </span>
-          <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <h1 className="mt-6 text-[2.5rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl 2xl:text-8xl">
             Dream Big.<br />
             Learn Smart.<br />
             <span className="text-gradient-brand bg-gradient-to-r from-brand-cyan to-white bg-clip-text text-transparent">
@@ -298,7 +298,7 @@ const STATS = [
 function TrustStrip() {
   return (
     <section className="border-y border-border bg-brand-light/50 py-14">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 md:grid-cols-4">
+      <div className="mx-auto grid max-w-[1800px] grid-cols-2 gap-8 2xl:gap-12 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 md:grid-cols-4">
         {STATS.map((s, i) => (
           <motion.div
             key={s.label}
@@ -331,8 +331,8 @@ const WHY = [
 
 function WhyChoose() {
   return (
-    <section id="about" className="py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
+    <section id="about" className="py-16 md:py-20 lg:py-24">
+      <div className="mx-auto max-w-[1800px] px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <SectionHeader
           eyebrow="Why Muthura Academy"
           title={
@@ -342,7 +342,7 @@ function WhyChoose() {
           }
           subtitle="A future-ready academy blending offline mentorship with modern online delivery — so learning fits your life."
         />
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-6 2xl:gap-8 md:grid-cols-2 lg:grid-cols-4">
           {WHY.map((w, i) => (
             <motion.div
               key={w.title}
@@ -427,8 +427,8 @@ function Courses() {
   const [atEnd, setAtEnd] = useState(false);
 
   return (
-    <section id="courses" className="overflow-x-hidden bg-brand-light/40 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
+    <section id="courses" className="overflow-x-hidden bg-brand-light/40 py-16 md:py-20 lg:py-24">
+      <div className="mx-auto max-w-[1800px] px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <SectionHeader
           eyebrow="Our Courses"
           title={
@@ -461,8 +461,9 @@ function Courses() {
               640: { slidesPerView: 1.5, spaceBetween: 20 },
               768: { slidesPerView: 2, spaceBetween: 24 },
               1024: { slidesPerView: 3, spaceBetween: 24 },
+              1536: { slidesPerView: 4, spaceBetween: 28 },
             }}
-            className="!overflow-visible !pb-4"
+            className="!overflow-x-clip !overflow-y-visible !pb-4"
           >
             {COURSES.map((c, i) => (
               <SwiperSlide key={c.title} className="h-auto">
@@ -634,8 +635,8 @@ function Certificates() {
     "Digital & printable certificates on completion",
   ];
   return (
-    <section id="certificates" className="py-24 md:py-32">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-12 lg:gap-16">
+    <section id="certificates" className="py-16 md:py-20 lg:py-24">
+      <div className="mx-auto grid max-w-[1800px] grid-cols-1 items-center gap-10 px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 md:grid-cols-2 md:gap-12 lg:gap-16 2xl:gap-24">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -804,10 +805,10 @@ function Stories() {
   }, [i]);
 
   return (
-    <section className="relative overflow-hidden bg-brand-light/40 py-24 md:py-32">
+    <section className="relative overflow-hidden bg-brand-light/40 py-16 md:py-20 lg:py-24">
       <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-brand-cyan/20 blur-3xl" />
       <div className="pointer-events-none absolute -right-32 bottom-16 h-72 w-72 rounded-full bg-brand-primary/20 blur-3xl" />
-      <div className="relative mx-auto max-w-7xl px-6">
+      <div className="relative mx-auto max-w-[1800px] px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <SectionHeader
           eyebrow="Success Stories"
           title={
@@ -1002,8 +1003,8 @@ const FAQS = [
 function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="py-24 md:py-32">
-      <div className="mx-auto max-w-4xl px-6">
+    <section className="py-16 md:py-20 lg:py-24">
+      <div className="mx-auto max-w-4xl 2xl:max-w-5xl px-6">
         <SectionHeader
           eyebrow="FAQ"
           title={
@@ -1045,8 +1046,8 @@ function FAQ() {
 
 function Contact() {
   return (
-    <section id="contact" className="bg-brand-light/40 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
+    <section id="contact" className="bg-brand-light/40 py-16 md:py-20 lg:py-24">
+      <div className="mx-auto max-w-[1800px] px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <SectionHeader
           eyebrow="Contact"
           title={
@@ -1072,6 +1073,15 @@ function Contact() {
                 </a>,
                 <a key="2" href="tel:+919080450938" className="hover:text-brand-primary transition-colors">
                   +91 90804 50938
+                </a>,
+              ]}
+            />
+            <ContactCard
+              icon={<Mail className="h-5 w-5" />}
+              title="Mail us on"
+              lines={[
+                <a key="1" href="mailto:hello@muthura.in" className="hover:text-brand-primary transition-colors">
+                  hello@muthura.in
                 </a>,
               ]}
             />
@@ -1180,7 +1190,7 @@ function Field({
 function Footer() {
   return (
     <footer className="bg-brand-navy text-white">
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <div className="mx-auto max-w-[1800px] px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-20">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <div className="flex items-center gap-3">
@@ -1222,7 +1232,8 @@ function Footer() {
               links={[
                 ["+91 90477 54194", "tel:+919047754194"],
                 ["+91 90804 50938", "tel:+919080450938"],
-                ["Udangudi, Thoothukudi", "#contact"],
+                ["hello@muthura.in", "mailto:hello@muthura.in"],
+                ["Koola Street, Udangudi, Thoothukudi District – 628203", "#contact"],
               ]}
             />
           </div>
