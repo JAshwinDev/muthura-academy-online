@@ -12,9 +12,18 @@ import type { ReactNode } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { default as SwiperType } from "swiper";
 import { Navigation } from "swiper/modules";
+import emailjs from "@emailjs/browser";
 
 import "swiper/css";
 import "swiper/css/navigation";
+
+/* ------------------------------------------------------------------ */
+/*  EmailJS config — read from .env (see README block at bottom)       */
+/* ------------------------------------------------------------------ */
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string;
+const ENQUIRY_RECEIVER_EMAIL = "asmuthuanushya@gmail.com";
 
 const NAV = [
   { href: "#courses", label: "Courses", icon: BookOpen },
@@ -1044,7 +1053,130 @@ function FAQ() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Contact form — validated + wired to EmailJS                        */
+/* ------------------------------------------------------------------ */
+
+const NAME_REGEX = /^[A-Za-z\s]*$/;
+const PHONE_REGEX = /^[6-9]\d{9}$/;
+const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+const MAX_MESSAGE_WORDS = 1000;
+
+type FormState = {
+  name: string;
+  phone: string;
+  email: string;
+  course: string;
+  message: string;
+};
+
+type FormErrors = Partial<Record<keyof FormState, string>>;
+
+function countWords(text: string) {
+  const trimmed = text.trim();
+  return trimmed === "" ? 0 : trimmed.split(/\s+/).length;
+}
+
 function Contact() {
+  const [form, setForm] = useState<FormState>({
+    name: "",
+    phone: "",
+    email: "",
+    course: COURSES[0].title,
+    message: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const wordCount = countWords(form.message);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (NAME_REGEX.test(value)) {
+      setForm((f) => ({ ...f, name: value }));
+      setErrors((er) => ({ ...er, name: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digitsOnly = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setForm((f) => ({ ...f, phone: digitsOnly }));
+    setErrors((er) => ({ ...er, phone: undefined }));
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((f) => ({ ...f, email: e.target.value }));
+    setErrors((er) => ({ ...er, email: undefined }));
+  };
+
+  const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm((f) => ({ ...f, course: e.target.value }));
+  };
+
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const words = value.trim() === "" ? [] : value.trim().split(/\s+/);
+    if (words.length <= MAX_MESSAGE_WORDS) {
+      setForm((f) => ({ ...f, message: value }));
+    } else {
+      setForm((f) => ({ ...f, message: words.slice(0, MAX_MESSAGE_WORDS).join(" ") }));
+    }
+    setErrors((er) => ({ ...er, message: undefined }));
+  };
+
+  const validate = (): FormErrors => {
+    const next: FormErrors = {};
+    if (!form.name.trim()) next.name = "Please enter your name.";
+    else if (!NAME_REGEX.test(form.name)) next.name = "Name can only contain letters and spaces.";
+
+    if (!form.phone) next.phone = "Please enter your phone number.";
+    else if (!PHONE_REGEX.test(form.phone)) next.phone = "Enter a valid 10-digit number starting with 6–9.";
+
+    if (!form.email) next.email = "Please enter your email.";
+    else if (!GMAIL_REGEX.test(form.email)) next.email = "Only @gmail.com addresses are accepted.";
+
+    if (countWords(form.message) > MAX_MESSAGE_WORDS) next.message = `Message must be under ${MAX_MESSAGE_WORDS} words.`;
+
+    return next;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const nextErrors = validate();
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      setStatus("error");
+      console.error(
+        "EmailJS is not configured. Add VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID and VITE_EMAILJS_PUBLIC_KEY to your .env file."
+      );
+      return;
+    }
+
+    setStatus("sending");
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: form.name,
+          from_phone: form.phone,
+          from_email: form.email,
+          interested_course: form.course,
+          message: form.message,
+          to_email: ENQUIRY_RECEIVER_EMAIL,
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      setStatus("sent");
+      setForm({ name: "", phone: "", email: "", course: COURSES[0].title, message: "" });
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    }
+  };
+
   return (
     <section id="contact" className="bg-brand-light/40 py-16 md:py-20 lg:py-24">
       <div className="mx-auto max-w-[1800px] px-6 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
@@ -1088,29 +1220,56 @@ function Contact() {
             <div className="overflow-hidden rounded-3xl border border-border shadow-soft">
               <iframe
                 title="Muthura Academy location"
-                // src="https://www.google.com/maps?q=Udangudi,+Thoothukudi&output=embed"
-           src="https://www.google.com/maps?q=11/4A+Koola+Street,+Udangudi,+Thoothukudi+District,+Tamil+Nadu+628203&output=embed"
+                src="https://www.google.com/maps?q=11/4A+Koola+Street,+Udangudi,+Thoothukudi+District,+Tamil+Nadu+628203&output=embed"
                 loading="lazy"
                 className="h-[280px] w-full border-0 sm:h-[320px]"
               />
             </div>
           </div>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Thanks! Our advisor will reach out shortly.");
-            }}
+            onSubmit={handleSubmit}
+            noValidate
             className="space-y-5 rounded-3xl border border-border bg-white p-8 shadow-soft lg:col-span-3"
           >
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Full name" name="name" placeholder="Your name" />
-              <Field label="Phone" name="phone" type="tel" placeholder="+91" />
+              <Field
+                label="Full name"
+                name="name"
+                placeholder="Your name"
+                value={form.name}
+                onChange={handleNameChange}
+                error={errors.name}
+              />
+              <Field
+                label="Phone"
+                name="phone"
+                type="tel"
+                inputMode="numeric"
+                placeholder="98765 43210"
+                value={form.phone}
+                onChange={handlePhoneChange}
+                error={errors.phone}
+                maxLength={10}
+              />
             </div>
-            <Field label="Email" name="email" type="email" placeholder="you@email.com" />
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              placeholder="you@gmail.com"
+              value={form.email}
+              onChange={handleEmailChange}
+              error={errors.email}
+            />
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-brand-navy">I'm interested in</label>
+              <label className="mb-1.5 block text-sm font-semibold text-brand-navy" htmlFor="course">
+                I'm interested in
+              </label>
               <select
+                id="course"
                 name="course"
+                value={form.course}
+                onChange={handleCourseChange}
                 className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
               >
                 {COURSES.map((c) => (
@@ -1120,20 +1279,49 @@ function Contact() {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-semibold text-brand-navy">Message</label>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="block text-sm font-semibold text-brand-navy" htmlFor="message">
+                  Message
+                </label>
+                <span
+                  className={`text-xs font-medium ${
+                    wordCount >= MAX_MESSAGE_WORDS ? "text-destructive" : "text-muted-foreground"
+                  }`}
+                >
+                  {wordCount}/{MAX_MESSAGE_WORDS} words
+                </span>
+              </div>
               <textarea
+                id="message"
                 name="message"
                 rows={4}
                 placeholder="Tell us a bit about your goals…"
+                value={form.message}
+                onChange={handleMessageChange}
                 className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
               />
+              {errors.message && <p className="mt-1.5 text-xs font-medium text-destructive">{errors.message}</p>}
             </div>
+
             <button
               type="submit"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-6 py-3.5 text-sm font-semibold text-white shadow-brand transition-transform hover:scale-[1.02]"
+              disabled={status === "sending"}
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-brand px-6 py-3.5 text-sm font-semibold text-white shadow-brand transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Send Enquiry <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              {status === "sending" ? "Sending…" : "Send Enquiry"}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </button>
+
+            {status === "sent" && (
+              <p className="text-center text-sm font-medium text-brand-primary">
+                Thanks! Your enquiry has been sent — our advisor will reach out shortly.
+              </p>
+            )}
+            {status === "error" && (
+              <p className="text-center text-sm font-medium text-destructive">
+                Something went wrong sending your enquiry. Please try again or call us directly.
+              </p>
+            )}
           </form>
         </div>
       </div>
@@ -1164,11 +1352,21 @@ function Field({
   name,
   type = "text",
   placeholder,
+  value,
+  onChange,
+  error,
+  inputMode,
+  maxLength,
 }: {
   label: string;
   name: string;
   type?: string;
   placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  maxLength?: number;
 }) {
   return (
     <div>
@@ -1181,8 +1379,18 @@ function Field({
         type={type}
         placeholder={placeholder}
         required
-        className="w-full rounded-2xl border border-input bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/20"
+        value={value}
+        onChange={onChange}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        aria-invalid={!!error}
+        className={`w-full rounded-2xl border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
+          error
+            ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+            : "border-input focus:border-brand-primary focus:ring-brand-primary/20"
+        }`}
       />
+      {error && <p className="mt-1.5 text-xs font-medium text-destructive">{error}</p>}
     </div>
   );
 }
@@ -1352,3 +1560,31 @@ export function MuthuraSite() {
     </main>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  SETUP — required for the contact form to actually send email       */
+/* ------------------------------------------------------------------ */
+/*
+1. Install the EmailJS SDK:
+     npm install @emailjs/browser
+
+2. Create a free account at https://www.emailjs.com and set up:
+     - an Email Service connected to the inbox you want to send FROM
+     - an Email Template with variables: from_name, from_phone, from_email,
+       interested_course, message, to_email
+     - note your Service ID, Template ID and Public Key
+
+3. Create a .env file in your project root (Vite requires the VITE_ prefix)
+   with these three values — do NOT commit this file to git:
+
+     VITE_EMAILJS_SERVICE_ID=your_service_id
+     VITE_EMAILJS_TEMPLATE_ID=your_template_id
+     VITE_EMAILJS_PUBLIC_KEY=your_public_key
+
+4. In your EmailJS template, set the "To email" field to:
+     asmuthuanushya@gmail.com
+   (this is already sent as {{to_email}} in the payload too, but EmailJS
+   templates usually hardcode/require the recipient in the template itself).
+
+5. Restart your dev server after adding the .env file.
+*/
