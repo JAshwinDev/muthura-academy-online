@@ -5,6 +5,8 @@ A modern, responsive educational institute website built using **React**, **Type
 🌐 **Live Demo:** https://muthura-academy.onrender.com
 
 ---
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/ebd82c43-ff54-4e15-9b65-02942c728dc1" />
+
 
 ## 📖 Overview
 
